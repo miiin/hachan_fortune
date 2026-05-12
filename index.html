@@ -268,9 +268,9 @@
       // 오늘의 (정식) 운세. 이미 오늘 뽑았으면 fresh:false 로 그대로 반환.
       function getTodayFortune() {
         const today = new Date().toDateString();
-        // if (localStorage.getItem('todayFortune_date') === today) {
-        //   return { text: localStorage.getItem('todayFortune_text'), fresh: false };
-        // }
+        if (localStorage.getItem('todayFortune_date') === today) {
+          return { text: localStorage.getItem('todayFortune_text'), fresh: false };
+        }
         const text = fortunes[Math.floor(Math.random() * fortunes.length)];
         localStorage.setItem('todayFortune_date', today);
         localStorage.setItem('todayFortune_text', text);
@@ -305,7 +305,6 @@
         fortuneText.scrollIntoView({ block: 'center' });
       }
 
-      // 캔버스용 단어 단위 줄바꿈
       function wrapTextCanvas(ctx, text, maxW) {
         const words = String(text).split(' ');
         const lines = [];
@@ -437,13 +436,13 @@
       //   }
       // });
 
-      // (function restoreIfViewedToday() {
-      //   if (localStorage.getItem('todayFortune_date') !== new Date().toDateString()) return;
-      //   isCracked = true;
-      //   cookieWrapper.classList.add('opened');
-      //   cookieSprite.style.backgroundPosition = framePositions[LAST_FRAME];
-      //   showFortune(true);
-      // })();
+      (function restoreIfViewedToday() {
+        if (localStorage.getItem('todayFortune_date') !== new Date().toDateString()) return;
+        isCracked = true;
+        cookieWrapper.classList.add('opened');
+        cookieSprite.style.backgroundPosition = framePositions[LAST_FRAME];
+        showFortune(true);
+      })();
     </script>
   </body>
 </html>
