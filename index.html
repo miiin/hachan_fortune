@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>오늘의 직장인 하찮운세 🥠</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="">
+      <h1><span class="star">오늘 당신의 직장 운세는?!</h1>
+      <div id="cookie-wrapper" role="button" tabindex="0" aria-label="포춘쿠키 열기">
+        <div id="cookie-sprite"></div>
+        <div id="fortune-text" class="hidden"></div>
+      </div>
+
+      <div id="revisit-notice" class="hidden" aria-hidden="true">
+        <span>내일 다시 시도해 주세요~^v^</span>
+      </div>
+
+      <button id="share-btn" class="hidden" type="button">
+         공유
+      </button>
+    </div>
+
+    <div id="confetti" aria-hidden="true"></div>
+
+    <script>
+      // ── 직장인 하찮운세 리스트 (자유롭게 추가/수정하세요) ──────────────
+      const fortunes = [
+        '오늘 점심 메뉴 제안이 전부 거절당합니다.',
+        '오후 3시, 갑자기 졸음이 쏟아집니다.',
+        '오늘 보낸 메일에 오타가 있습니다. 하지만 아무도 눈치채지 못합니다.',
+        '오늘 야근은 없습니다. 대신 내일 두 배로 옵니다.',
+        '오늘의 행운: 화장실 칸이 항상 비어 있습니다.',
+        '키보드 사이에서 어제 먹은 과자 부스러기가 발견됩니다.',
+        '퇴근길 지옥철, 내 앞자리에 앉은 사람이 다음 정거장에서 내릴 확률 68%!',
+
+        '오늘의 금지어는 “제가 할게요”입니다.',
+        '정시퇴근의 기운이 보이나, 누군가의 “혹시”가 이를 가립니다.',
+        '오후 4시 이후 새 업무를 받지 않도록 눈을 마주치지 마세요.',
+        '오늘은 메신저 알림을 3분 늦게 보는 지혜가 필요합니다.',
+        '회의는 짧게 끝날 상입니다. 물론 짧다는 기준은 사람마다 다릅니다.',
+        '상사의 기분은 맑음이나, 요청사항은 흐림입니다.',
+        '점심 메뉴 선택권을 잡으면 하루의 운이 트입니다.',
+        '메일을 열기 전 심호흡이 필요한 날입니다.',
+        '별일 없는 하루처럼 보이나, 오후 5시 48분을 조심하세요.',
+        '오늘은 “잠깐만 봐주세요”에 발목 잡힐 운입니다.',
+
+        '오전의 평화는 오후 회의의 복선입니다.',
+        '오늘의 행운은 읽씹과 안읽씹 사이에 있습니다.',
+        '커피를 한 잔 더 마시면 모든 게 해결될 것 같지만, 그렇진 않습니다.',
+        '오늘은 파일명을 대충 지으면 내일의 내가 울게 됩니다.',
+        '작은 요청이 큰 업무로 자라나는 날입니다.',
+        '퇴근 직전 오는 메시지는 열지 않는 것이 복입니다.',
+        '오늘은 “간단히”라는 말을 믿지 마세요.',
+        '회의실에 들어가기 전 물을 챙기면 생존 확률이 오릅니다.',
+        '당신의 할 일 목록은 오늘도 번식력이 좋습니다.',
+        '오후 3시의 졸음은 자연재해에 가깝습니다.',
+
+        '오늘은 누군가 “이거 급한 건 아닌데”라고 말할 운입니다.',
+        '급하지 않다던 일은 대체로 오늘까지입니다.',
+        '점심 이후 집중력은 외근을 떠날 예정입니다.',
+        '오늘의 부적은 조용한 이어폰입니다.',
+        '메신저 상태를 자리비움으로 바꾸면 작은 액운을 피할 수 있습니다.',
+        '오늘은 대답하기 전에 3초 쉬면 손해를 줄일 수 있습니다.',
+        '상냥하게 답장하되, 책임은 받지 마세요.',
+        '오늘의 행운 숫자는 0입니다. 추가 업무가 0개이길 바랍니다.',
+        '오전에는 일복이 적고, 오후에는 기억나지 않는 일이 생깁니다.',
+        '오늘은 체크리스트를 만들면 체크리스트가 일을 부릅니다.',
+
+        '누군가의 “가능하시죠?”에 조심하세요.',
+        '오늘은 “확인 후 공유드리겠습니다”가 당신을 지켜줍니다.',
+        '보고서의 첫 줄보다 파일 저장 위치가 더 중요해지는 날입니다.',
+        '당신의 캘린더는 평화로워 보이지만 방심은 금물입니다.',
+        '오늘은 회의보다 회의 잡는 과정이 더 피곤할 수 있습니다.',
+        '오후 2시, 알 수 없는 피로가 당신을 찾아옵니다.',
+        '오늘의 점심운은 좋으나, 계산대 앞에서 작은 혼란이 있습니다.',
+        '오늘은 커피를 쏟지 않는 것만으로도 대길입니다.',
+        '팀 채널에 올라온 긴 글은 천천히 읽어도 됩니다.',
+        '오늘은 “아까 말씀드린 것처럼”을 사용할 일이 생깁니다.',
+
+        '파일명에 final을 붙이면 final_final이 따라옵니다.',
+        '오늘의 액운은 첨부파일 누락입니다.',
+        '작은 오타가 큰 민망함으로 자랄 수 있습니다.',
+        '오늘은 퇴근 준비를 너무 티 내지 않는 것이 좋습니다.',
+        '갑자기 잡힌 회의는 대체로 갑자기 끝나지 않습니다.',
+        '오늘은 누군가의 휴가가 당신의 업무가 될 수 있습니다.',
+        '슬랙 이모지 하나가 말보다 많은 일을 해냅니다.',
+        '오늘은 “넵!”을 너무 빨리 보내지 마세요.',
+        '대답은 짧게, 책임은 가볍게 가져가세요.',
+        '오늘의 행운 아이템은 책상 위 간식입니다.',
+
+        '월급날의 기운은 멀고, 카드값의 기운은 가깝습니다.',
+        '오늘은 할 일을 미루면 내일의 내가 회의를 신청합니다.',
+        '당신의 집중력은 현재 점심 메뉴를 검색 중입니다.',
+        '오전에는 생산성이 있고, 오후에는 생존성이 있습니다.',
+        '오늘은 아무 일도 안 일어나는 것이 최고의 운입니다.',
+        '업무 요청은 가볍게 오지만 무겁게 남습니다.',
+        '오늘은 “혹시 지금 바쁘세요?”라는 말에 마음의 문을 닫으세요.',
+        '회의 중 고개를 끄덕이면 일이 생길 수 있습니다.',
+        '오늘은 모르는 척이 약간의 평화를 가져옵니다.',
+        '복사 붙여넣기 전에 한 번 더 확인하면 액운을 피합니다.',
+
+        '오늘의 퇴근운은 나쁘지 않지만, 변수가 눈치를 보고 있습니다.',
+        '당신의 일정표에 비어 있는 칸은 누군가의 기회입니다.',
+        '오늘은 잘못 잡은 회의 링크가 작은 시련을 부릅니다.',
+        '아무 말 없이 올라온 파일을 조심하세요.',
+        '오늘의 귀인은 자동 저장 기능입니다.',
+        '사소한 컨펌 하나가 오후를 구할 수 있습니다.',
+        '오늘은 “나중에”라고 한 일이 다시 돌아오는 날입니다.',
+        '퇴근 30분 전에는 새로운 창을 열지 않는 것이 좋습니다.',
+        '오늘은 멀티태스킹보다 단일 생존이 유리합니다.',
+        '일이 없는 줄 알았던 시간에 일이 숨어 있습니다.',
+
+        '오늘의 회의운은 보통이나, 회의록운은 흉합니다.',
+        '말을 아끼면 업무도 조금 아낄 수 있습니다.',
+        '오늘은 친절한 설명이 추가 업무로 돌아올 수 있습니다.',
+        '점심 메뉴를 빠르게 정하는 사람이 하루의 흐름을 잡습니다.',
+        '오늘의 행운은 캘린더 알림을 미리 보는 데 있습니다.',
+        '오후에는 사소한 결정권이 당신에게 넘어올 수 있습니다.',
+        '오늘은 “이것만 먼저”가 세 개쯤 올 수 있습니다.',
+        '문서 제목을 정하는 데 생각보다 많은 기운이 빠집니다.',
+        '당신의 오늘 운세는 커피 농도에 따라 달라집니다.',
+        '회의가 취소되면 대길입니다. 하지만 다른 회의가 생길 수 있습니다.',
+
+        '오늘은 퇴근길 지하철 자리가 최고의 보상입니다.',
+        '상사의 “편하게 말해봐요”는 편하지 않을 수 있습니다.',
+        '오늘은 업무보다 업무 설명이 더 길어질 운입니다.',
+        '작은 칭찬 하나가 오후의 체력을 연장시킵니다.',
+        '오늘은 “공유드립니다”를 많이 쓰게 될 상입니다.',
+        '눈치껏 조용히 있으면 지나가는 액운이 있습니다.',
+        '오늘은 업무 메신저보다 택배 알림이 더 반갑습니다.',
+        '할 일을 정리하면 할 일이 늘어나는 신비한 날입니다.',
+        '오늘의 생존 문장은 “제가 한번 확인해볼게요”입니다.',
+        '정시퇴근은 가능하지만 마음의 퇴근은 이미 오전에 했습니다.',
+
+        '오늘은 회의실 예약 전쟁에서 한 발 늦을 수 있습니다.',
+        '누군가의 “빠르게만 봐주세요”는 빠르지 않습니다.',
+        '오늘은 문서 양식이 당신의 인내심을 시험합니다.',
+        '간식이 있는 곳에 작은 평화가 있습니다.',
+        '오후 5시의 알림은 못 본 척할수록 빛납니다.',
+        '오늘은 지나친 성실함이 일을 부를 수 있습니다.',
+        '당신의 친절은 오늘도 업무로 환전될 수 있습니다.',
+        '오늘은 적당히 바쁜 척이 방패가 됩니다.',
+        '읽지 않은 메일 수는 마음의 풍경입니다.',
+        '퇴근 후 약속이 있으면 퇴근운이 약간 상승합니다.',
+
+        '오늘은 “이거 누구 담당이죠?”라는 말이 떠돌 수 있습니다.',
+        '책상 정리는 잘 되지만 머릿속 정리는 어려울 수 있습니다.',
+        '오늘은 작은 버그 같은 하루입니다. 원인은 알 수 없습니다.',
+        '반쯤 쓴 답장을 다시 읽으면 자신을 구할 수 있습니다.',
+        '오늘은 새로운 일을 시작하기보다 기존 일을 무사히 넘기는 게 길합니다.',
+        '상대의 말끝에 숨어 있는 요청을 조심하세요.',
+        '오늘의 행운 색은 퇴근길 노을색입니다.',
+        '오전에는 의욕이 있고, 오후에는 자세가 무너집니다.',
+        '오늘은 “넵 확인했습니다”만으로도 충분한 순간이 있습니다.',
+        '갑자기 조용한 단체방을 조심하세요.',
+
+        '오늘은 회의가 끝났는데 일이 시작되는 날입니다.',
+        '당신의 하루는 캘린더보다 메신저가 결정합니다.',
+        '퇴근 직전 저장하지 않은 파일을 조심하세요.',
+        '오늘의 업무운은 보통, 귀찮음운은 대길입니다.',
+        '점심 후 산책을 하면 영혼이 조금 돌아옵니다.',
+        '오늘은 새로운 아이디어보다 기존 업무 마감이 강합니다.',
+        '사소한 질문이 긴 설명으로 번질 수 있습니다.',
+        '오늘은 “혹시 하나만 더”의 기운이 강합니다.',
+        '당신의 의자는 오늘도 모든 것을 알고 있습니다.',
+        '오늘은 퇴근 후 침대와의 궁합이 좋습니다.',
+
+        '오늘의 컨디션은 브라우저 탭 개수와 반비례합니다.',
+        '중요한 파일은 바탕화면에 두지 않는 것이 길합니다.',
+        '오늘은 아무도 묻지 않았는데 설명하게 될 수 있습니다.',
+        '메신저 알림음이 유난히 크게 들리는 날입니다.',
+        '오늘은 캡처 한 장이 백 마디 말을 대신합니다.',
+        '작게 말한 의견이 큰 업무가 될 수 있습니다.',
+        '오늘은 고개를 너무 적극적으로 끄덕이지 마세요.',
+        '오후의 당신은 오전의 결심을 기억하지 못합니다.',
+        '오늘의 행운은 회의가 10분 일찍 끝나는 것입니다.',
+        '오늘은 “공감합니다” 뒤에 일이 따라올 수 있습니다.',
+
+        '아침의 계획은 점심 전에 수정될 운입니다.',
+        '오늘은 할 일을 끝냈더니 새 할 일이 보이는 날입니다.',
+        '퇴근 버튼은 없지만 마음속에는 있습니다.',
+        '오늘은 조용히 지나가면 이기는 날입니다.',
+        '누군가의 퇴사 소식이 업무 재배치의 바람을 부를 수 있습니다.',
+        '오늘은 커피보다 물을 마시면 의외로 살 수 있습니다.',
+        '집중하려는 순간 누군가 말을 걸 가능성이 높습니다.',
+        '오늘의 액운 시간은 점심 직후 첫 알림입니다.',
+        '적당한 침묵이 최고의 답변이 되는 날입니다.',
+        '오늘은 “제가 정리해볼게요”를 조심해야 합니다.',
+
+        '회의 중 메모를 하면 똑똑해 보이나 일이 생길 수 있습니다.',
+        '오늘은 업무보다 업무 우선순위 정리가 더 어렵습니다.',
+        '퇴근길에 맛있는 걸 사면 하루가 조금 용서됩니다.',
+        '오늘의 운은 책상 위 충전기와 함께합니다.',
+        '사소한 지연은 큰 핑계가 될 수 있습니다.',
+        '오늘은 타이밍 좋게 화장실 가는 지혜가 필요합니다.',
+        '업무 요청이 친근한 말투로 다가올 수 있습니다.',
+        '오늘은 반박보다 캡처가 강합니다.',
+        '당신의 평화는 알림 설정에 달려 있습니다.',
+        '오늘도 월급은 멀지만 퇴근은 가까워지고 있습니다.',
+      ];
+
+      const cookieSprite = document.getElementById('cookie-sprite');
+      const cookieWrapper = document.getElementById('cookie-wrapper');
+      const fortuneText = document.getElementById('fortune-text');
+      const revisitNotice = document.getElementById('revisit-notice');
+      const shareBtn = document.getElementById('share-btn');
+      const confettiLayer = document.getElementById('confetti');
+      let isCracked = false;
+      let currentFortune = '';
+
+      const framePositions = ['0% 0%', '100% 0%', '0% 50%', '100% 50%', '0% 100%', '100% 100%'];
+      const LAST_FRAME = 5; 
+      const frameDelays = [80, 80, 150, 200, 300];
+
+      function crackCookie() {
+        if (isCracked) return;
+        isCracked = true;
+
+        cookieWrapper.classList.add('shake', 'opened');
+
+        let currentFrame = 0;
+        function nextFrame() {
+          currentFrame++;
+          if (currentFrame <= LAST_FRAME) {
+            cookieSprite.style.backgroundPosition = framePositions[currentFrame];
+            if (currentFrame === LAST_FRAME) burstConfetti();
+            setTimeout(nextFrame, frameDelays[currentFrame - 1]);
+          } else {
+            cookieWrapper.classList.remove('shake');
+            showFortune(false);
+          }
+        }
+        setTimeout(nextFrame, frameDelays[0]);
+      }
+
+      function burstConfetti() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const emojis = ['🔥', '⭐', '🍄', '🌟', '✨', '🦋'];
+        const rect = cookieSprite.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const count = 22;
+        for (let i = 0; i < count; i++) {
+          const piece = document.createElement('span');
+          piece.className = 'confetti-piece';
+          piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.45;
+          const dist = 110 + Math.random() * 170;
+          piece.style.left = cx + 'px';
+          piece.style.top = cy + 'px';
+          piece.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+          piece.style.setProperty('--dy', Math.sin(angle) * dist + 130 + 'px'); 
+          piece.style.setProperty('--rot', Math.random() * 540 - 270 + 'deg');
+          piece.style.fontSize = 16 + Math.random() * 16 + 'px';
+          piece.style.animationDelay = Math.random() * 60 + 'ms';
+          confettiLayer.appendChild(piece);
+          piece.addEventListener('animationend', () => piece.remove());
+        }
+      }
+
+      // 오늘의 (정식) 운세. 이미 오늘 뽑았으면 fresh:false 로 그대로 반환.
+      function getTodayFortune() {
+        const today = new Date().toDateString();
+        if (localStorage.getItem('todayFortune_date') === today) {
+          return { text: localStorage.getItem('todayFortune_text'), fresh: false };
+        }
+        const text = fortunes[Math.floor(Math.random() * fortunes.length)];
+        localStorage.setItem('todayFortune_date', today);
+        localStorage.setItem('todayFortune_text', text);
+        return { text, fresh: true };
+      }
+
+      function pickRandomFortune(...exclude) {
+        if (fortunes.length <= exclude.length + 1) {
+          return fortunes.find((t) => !exclude.includes(t)) || fortunes[0];
+        }
+        let t;
+        do {
+          t = fortunes[Math.floor(Math.random() * fortunes.length)];
+        } while (exclude.includes(t));
+        return t;
+      }
+
+
+      function showFortune(isRevisit) {
+        const { text, fresh } = getTodayFortune();
+        currentFortune = text;
+
+        fortuneText.innerText = currentFortune;
+        fortuneText.classList.remove('hidden');
+        void fortuneText.offsetWidth; 
+        fortuneText.classList.add('show');
+
+        if (!fresh) revisitNotice.classList.remove('hidden');
+
+        shareBtn.classList.remove('hidden');
+
+        fortuneText.scrollIntoView({ block: 'center' });
+      }
+
+      // 캔버스용 단어 단위 줄바꿈
+      function wrapTextCanvas(ctx, text, maxW) {
+        const words = String(text).split(' ');
+        const lines = [];
+        let line = '';
+        for (const w of words) {
+          const test = line ? line + ' ' + w : w;
+          if (line && ctx.measureText(test).width > maxW) {
+            lines.push(line);
+            line = w;
+          } else {
+            line = test;
+          }
+        }
+        if (line) lines.push(line);
+        return lines.length ? lines : [''];
+      }
+
+      // 결과(운세)가 담긴 공유용 이미지를 만들어 PNG Blob으로 반환
+      // — 화면처럼 "쿠키 이미지 + 가운데 운세" 부분만 담는다 (타이틀/푸터 없음)
+      async function buildShareImage() {
+        // 스프라이트 이미지 로드 (CSS의 background-image 경로 그대로 사용 → 이미 캐시됨)
+        const srcMatch = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(cookieSprite).backgroundImage || '');
+        const spriteUrl = srcMatch ? srcMatch[1] : 'cookie_sprite_.png';
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = spriteUrl;
+        });
+
+        // 캔버스 텍스트 측정/렌더 전에 폰트 로드 보장
+        try {
+          await Promise.all([document.fonts.load("600 28px 'Pretendard'"), document.fonts.ready]);
+        } catch (e) {}
+
+        // 스프라이트에서 "열린 쿠키"(= 마지막) 프레임 한 칸
+        const cols = 2;
+        const rows = 3;
+        const [pxStr, pyStr] = framePositions[LAST_FRAME].split(' ');
+        const col = Math.round((parseFloat(pxStr) / 100) * (cols - 1));
+        const row = Math.round((parseFloat(pyStr) / 100) * (rows - 1));
+        const cellW = img.naturalWidth / cols;
+        const cellH = img.naturalHeight / rows;
+        const cw = Math.round(cellW);
+        const ch = Math.round(cellH);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+
+        // 배경(사이트와 동일) + 쿠키 프레임 1:1
+        ctx.fillStyle = '#c1c6ca';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, cellW * col, cellH * row, cellW, cellH, 0, 0, cw, ch);
+
+        // 운세 텍스트 박스 (화면처럼 노란 배경 + 검정 글씨, 쿠키 가운데)
+        ctx.textAlign = 'center';
+        ctx.font = "600 28px 'Pretendard',sans-serif";
+        const lines = wrapTextCanvas(ctx, currentFortune, 420);
+        const lineH = 42;
+        const padX = 16;
+        const padY = 10;
+        const textW = Math.max(...lines.map((l) => ctx.measureText(l).width));
+        const boxW = textW + padX * 2;
+        const boxH = lines.length * lineH + padY * 2;
+        const boxX = (cw - boxW) / 2;
+        const boxY = (ch - boxH) / 2;
+        ctx.fillStyle = '#fdfe00';
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        ctx.fillStyle = '#111111';
+        ctx.textBaseline = 'middle';
+        lines.forEach((l, i) => ctx.fillText(l, cw / 2, boxY + padY + lineH * i + lineH / 2));
+
+        return new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/png'));
+      }
+
+      shareBtn.addEventListener('click', async () => {
+        const shareText = `오늘의 직장인 하찮운세 🥠\n\n"${currentFortune}"`;
+        const shareUrl = location.href;
+        const title = '오늘의 직장인 하찮운세 🥠';
+
+        const original = shareBtn.textContent;
+        shareBtn.disabled = true;
+        shareBtn.textContent = '이미지 만드는 중…';
+
+        let file = null;
+        try {
+          const blob = await buildShareImage();
+          if (blob) file = new File([blob], 'fortune-cookie.png', { type: 'image/png' });
+        } catch (e) {
+          // 이미지 생성 실패 시 텍스트 공유로 폴백
+        }
+
+        shareBtn.disabled = false;
+        shareBtn.textContent = original;
+
+        // 1) 이미지 파일 공유 (모바일 OS 공유 시트)
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title, text: shareText });
+          } catch (err) {
+            // 취소(AbortError) 등은 무시
+          }
+          return;
+        }
+
+        // 2) 파일 공유 불가 → 텍스트만 공유
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, text: shareText, url: shareUrl });
+            return;
+          } catch (err) {
+            // 폴백 계속
+          }
+        }
+
+        // 3) 데스크톱 폴백: 이미지 다운로드 + 텍스트 클립보드 복사
+        if (file) {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(file);
+          a.download = 'fortune-cookie.png';
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        }
+        try {
+          await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+          shareBtn.textContent = file ? '이미지 저장됨 📷' : '복사됨! 📋';
+          setTimeout(() => {
+            shareBtn.textContent = original;
+          }, 1800);
+        } catch (err) {
+          if (!file) alert(`${shareText}\n${shareUrl}`);
+        }
+      });
+
+      cookieWrapper.addEventListener('click', crackCookie);
+      cookieWrapper.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          crackCookie();
+        }
+      });
+
+      (function restoreIfViewedToday() {
+        if (localStorage.getItem('todayFortune_date') !== new Date().toDateString()) return;
+        isCracked = true;
+        cookieWrapper.classList.add('opened');
+        cookieSprite.style.backgroundPosition = framePositions[LAST_FRAME];
+        showFortune(true);
+      })();
+    </script>
+  </body>
+</html>

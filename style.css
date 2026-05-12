@@ -1,0 +1,336 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* 첨부 이미지 특유의 강렬한 블랙 & 화이트 대비 */
+  --ink: #111111;
+  --ink-soft: #555555;
+  --paper: #e5dfdf;
+  --line: #111111;
+  --accent: #111111;
+  --accent-dark: #000000;
+  --font-sans: 'Inter', 'Pretendard', -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', 'Nanum Myeongjo', serif;
+}
+
+/* ── 데스크탑 좌우 여백 처리 ────────────────────── */
+html {
+  background-color: #c1c6ca;
+  display: flex;
+  justify-content: center;
+}
+
+/* ── 모바일 화면 영역 (가운데 고정) ──────────────── */
+body {
+  position: relative;
+  width: 100%;
+  /* max-width: 480px; */
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  text-align: center;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* 포스터 느낌의 캔버스 (둥근 모서리 제거, 배경 질감 약간 추가) */
+.card {
+  position: relative;
+  width: 100%;
+  padding: 40px 24px 36px;
+  background-color: var(--paper);
+  background-repeat: no-repeat;
+  border-radius: 0; /* 각진 모서리로 포스터 무드 강조 */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+/* ── 헤드라인 ─────────────────────────────────── */
+.badge {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 0; /* 둥근 모서리 제거 */
+}
+
+h1 {
+  font-family: var(--font-sans);
+  font-size: clamp(1.6rem, 7vw, 2.1rem);
+  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+/* Subtitle에 세리프 이탤릭 적용 (핵심 디자인 포인트) */
+.subtitle {
+  margin-top: 6px;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+/* ── 포춘쿠키 ─────────────────────────────────── */
+#cookie-wrapper {
+  position: relative;
+  display: block;
+  width: fit-content;
+  margin: 16px auto;
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+#cookie-wrapper:hover {
+  transform: scale(1.03);
+}
+#cookie-wrapper:active {
+  transform: scale(0.97);
+}
+#cookie-wrapper.opened {
+  cursor: default;
+  transform: none;
+}
+
+#cookie-sprite {
+  position: relative;
+  z-index: 1;
+  width: min(600px, calc(100vw - 20px));
+  aspect-ratio: 976 / 731;
+  background-image: url('cookie_sprite_.png');
+  background-size: 200% 300%;
+  background-position: 0% 0%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  /* 쿠키 이미지가 도트(픽셀아트) 형태라면 이대로 유지하는 것이 힙합니다 */
+}
+
+#cookie-wrapper:not(.opened) #cookie-sprite {
+  animation: nudge 5s ease-in-out infinite;
+  transform-origin: 50% 78%;
+}
+#cookie-wrapper:hover:not(.opened) #cookie-sprite {
+  animation: none;
+}
+@keyframes nudge {
+  0%,
+  90%,
+  100% {
+    transform: rotate(0);
+  }
+  93% {
+    transform: rotate(-3deg);
+  }
+  96% {
+    transform: rotate(2.5deg);
+  }
+  98.5% {
+    transform: rotate(-1deg);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.shake {
+  animation: shake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-2px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(4px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-8px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(8px, 0, 0);
+  }
+}
+
+#fortune-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  /* width: max-content; */
+  width: 210px;
+  max-width: min(360px, 88vw);
+  padding: 4px 6px;
+  background: var(--paper);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ink);
+  word-break: keep-all;
+  opacity: 0;
+  transform: translate(-50%, calc(-50% + 10px));
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+#fortune-text.show {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+@media (min-width: 768px) {
+  #fortune-text {
+    width: 240px;
+    font-size: 0.96rem;
+    line-height: 1.6;
+  }
+}
+
+/* ── 재방문 안내 (흐르는 마퀴) ──────────────────── */
+#revisit-notice {
+  overflow: hidden;
+  margin: 0 auto;
+  max-width: min(600px, calc(100vw - 20px));
+  padding: 4px 0;
+  background: #fdfe00;
+  color: #000000;
+  font-size: 0.8rem;
+}
+#revisit-notice span {
+  display: inline-block;
+  padding-left: 100%;
+  white-space: nowrap;
+  animation: notice-marquee 9s linear infinite;
+}
+@keyframes notice-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ── 메타 / 카운터 / 카운트다운 ────────────────── */
+#fortune-meta {
+  margin-top: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+#fortune-meta b {
+  color: var(--ink);
+}
+#countdown {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+#countdown .lock {
+  display: inline-block;
+  margin-bottom: 4px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: var(--paper);
+  background: var(--ink);
+}
+#countdown time {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ── 공유 버튼 ─────────────────────────────────── */
+#share-btn {
+  background-color: #dfdfdf; /* 클래식한 밝은 회색 */
+  color: #333333;
+  font-family: Tahoma, Arial, sans-serif; /* 그 시절 느낌이 나는 기본 폰트 */
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #a5a5a5;
+  border-right: 2px solid #a5a5a5;
+  padding: 4px 12px;
+  cursor: pointer;
+  outline: none;
+  margin-top: 24px;
+}
+
+#share-btn:hover {
+  background-color: #e8e8e8;
+}
+
+#share-btn:active {
+  border-top: 2px solid #a5a5a5;
+  border-left: 2px solid #a5a5a5;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  padding: 5px 11px 3px 13px;
+}
+
+/* ── 컨페티 ───────────────────────────────────── */
+#confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: fixed;
+  font-size: 22px;
+  will-change: transform, opacity;
+  animation: confetti-fly 1100ms cubic-bezier(0.15, 0.6, 0.4, 1) forwards;
+}
+@keyframes confetti-fly {
+  0% {
+    transform: translate(calc(-50% + 0px), calc(-50% + 0px)) scale(0.4) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot));
+    opacity: 0;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before {
+    animation: none !important;
+  }
+}
