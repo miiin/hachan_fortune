@@ -31,7 +31,6 @@
     <div id="confetti" aria-hidden="true"></div>
 
     <script>
-      // ── 직장인 하찮운세 리스트 (자유롭게 추가/수정하세요) ──────────────
       const fortunes = [
         '오늘 점심 메뉴 제안이 전부 거절당합니다.',
         '오후 3시, 갑자기 졸음이 쏟아집니다.',
@@ -243,7 +242,7 @@
 
       function burstConfetti() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const emojis = ['🔥', '⭐', '🍄', '🌟', '✨', '🦋'];
+        const emojis = ['🔥', '⭐', '🌈', '🌟', '✨', '🦋'];
         const rect = cookieSprite.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
@@ -269,9 +268,9 @@
       // 오늘의 (정식) 운세. 이미 오늘 뽑았으면 fresh:false 로 그대로 반환.
       function getTodayFortune() {
         const today = new Date().toDateString();
-        if (localStorage.getItem('todayFortune_date') === today) {
-          return { text: localStorage.getItem('todayFortune_text'), fresh: false };
-        }
+        // if (localStorage.getItem('todayFortune_date') === today) {
+        //   return { text: localStorage.getItem('todayFortune_text'), fresh: false };
+        // }
         const text = fortunes[Math.floor(Math.random() * fortunes.length)];
         localStorage.setItem('todayFortune_date', today);
         localStorage.setItem('todayFortune_text', text);
@@ -324,10 +323,7 @@
         return lines.length ? lines : [''];
       }
 
-      // 결과(운세)가 담긴 공유용 이미지를 만들어 PNG Blob으로 반환
-      // — 화면처럼 "쿠키 이미지 + 가운데 운세" 부분만 담는다 (타이틀/푸터 없음)
       async function buildShareImage() {
-        // 스프라이트 이미지 로드 (CSS의 background-image 경로 그대로 사용 → 이미 캐시됨)
         const srcMatch = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(cookieSprite).backgroundImage || '');
         const spriteUrl = srcMatch ? srcMatch[1] : 'cookie_sprite_.png';
         const img = new Image();
@@ -337,12 +333,10 @@
           img.src = spriteUrl;
         });
 
-        // 캔버스 텍스트 측정/렌더 전에 폰트 로드 보장
         try {
           await Promise.all([document.fonts.load("600 28px 'Pretendard'"), document.fonts.ready]);
         } catch (e) {}
 
-        // 스프라이트에서 "열린 쿠키"(= 마지막) 프레임 한 칸
         const cols = 2;
         const rows = 3;
         const [pxStr, pyStr] = framePositions[LAST_FRAME].split(' ');
@@ -358,12 +352,10 @@
         canvas.height = ch;
         const ctx = canvas.getContext('2d');
 
-        // 배경(사이트와 동일) + 쿠키 프레임 1:1
         ctx.fillStyle = '#c1c6ca';
         ctx.fillRect(0, 0, cw, ch);
         ctx.drawImage(img, cellW * col, cellH * row, cellW, cellH, 0, 0, cw, ch);
 
-        // 운세 텍스트 박스 (화면처럼 노란 배경 + 검정 글씨, 쿠키 가운데)
         ctx.textAlign = 'center';
         ctx.font = "600 28px 'Pretendard',sans-serif";
         const lines = wrapTextCanvas(ctx, currentFortune, 420);
@@ -398,33 +390,27 @@
           const blob = await buildShareImage();
           if (blob) file = new File([blob], 'fortune-cookie.png', { type: 'image/png' });
         } catch (e) {
-          // 이미지 생성 실패 시 텍스트 공유로 폴백
         }
 
         shareBtn.disabled = false;
         shareBtn.textContent = original;
 
-        // 1) 이미지 파일 공유 (모바일 OS 공유 시트)
         if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({ files: [file], title, text: shareText });
           } catch (err) {
-            // 취소(AbortError) 등은 무시
           }
           return;
         }
 
-        // 2) 파일 공유 불가 → 텍스트만 공유
         if (navigator.share) {
           try {
             await navigator.share({ title, text: shareText, url: shareUrl });
             return;
           } catch (err) {
-            // 폴백 계속
           }
         }
 
-        // 3) 데스크톱 폴백: 이미지 다운로드 + 텍스트 클립보드 복사
         if (file) {
           const a = document.createElement('a');
           a.href = URL.createObjectURL(file);
@@ -444,20 +430,20 @@
       });
 
       cookieWrapper.addEventListener('click', crackCookie);
-      cookieWrapper.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          crackCookie();
-        }
-      });
+      // cookieWrapper.addEventListener('keydown', (e) => {
+      //   if (e.key === 'Enter' || e.key === ' ') {
+      //     e.preventDefault();
+      //     crackCookie();
+      //   }
+      // });
 
-      (function restoreIfViewedToday() {
-        if (localStorage.getItem('todayFortune_date') !== new Date().toDateString()) return;
-        isCracked = true;
-        cookieWrapper.classList.add('opened');
-        cookieSprite.style.backgroundPosition = framePositions[LAST_FRAME];
-        showFortune(true);
-      })();
+      // (function restoreIfViewedToday() {
+      //   if (localStorage.getItem('todayFortune_date') !== new Date().toDateString()) return;
+      //   isCracked = true;
+      //   cookieWrapper.classList.add('opened');
+      //   cookieSprite.style.backgroundPosition = framePositions[LAST_FRAME];
+      //   showFortune(true);
+      // })();
     </script>
   </body>
 </html>
